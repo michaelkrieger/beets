@@ -179,7 +179,7 @@ def _safe_yield_from(
         log.debug("Exception details:", exc_info=True)
 
 
-def __class_name_from_method(func: Callable) -> str:
+def __class_name_from_method(func: Callable[P, R]) -> str:
     """Helper function to get the class name from a method."""
     return (
         func.__qualname__.split(".")[0]

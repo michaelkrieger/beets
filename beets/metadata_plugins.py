@@ -267,7 +267,7 @@ class MetadataSourcePlugin(BeetsPlugin, metaclass=abc.ABCMeta):
         """
         raise NotImplementedError
 
-    def albums_for_ids(self, ids: Sequence[str]) -> Iterable[AlbumInfo | None]:
+    def albums_for_ids(self, ids: Iterable[str]) -> Iterable[AlbumInfo | None]:
         """Batch lookup of album metadata for a list of album IDs.
 
         Given a list of album identifiers, yields corresponding AlbumInfo objects.
@@ -278,7 +278,7 @@ class MetadataSourcePlugin(BeetsPlugin, metaclass=abc.ABCMeta):
 
         return (self.album_for_id(id) for id in ids)
 
-    def tracks_for_ids(self, ids: Sequence[str]) -> Iterable[TrackInfo | None]:
+    def tracks_for_ids(self, ids: Iterable[str]) -> Iterable[TrackInfo | None]:
         """Batch lookup of track metadata for a list of track IDs.
 
         Given a list of track identifiers, yields corresponding TrackInfo objects.

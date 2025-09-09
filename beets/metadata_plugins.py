@@ -156,7 +156,7 @@ def _safe_call(
     except Exception as e:
         log.error(
             "Error in '{}': {}",
-            __class_name_from_method(func),
+            _class_name_from_method(func),
             e,
         )
         log.debug("Exception details:", exc_info=True)
@@ -173,13 +173,13 @@ def _safe_yield_from(
     except Exception as e:
         log.error(
             "Error in '{}': {}",
-            __class_name_from_method(func),
+            _class_name_from_method(func),
             e,
         )
         log.debug("Exception details:", exc_info=True)
 
 
-def __class_name_from_method(func: Callable[P, R]) -> str:
+def _class_name_from_method(func: Callable[P, R]) -> str:
     """Helper function to get the class name from a method."""
     return (
         func.__qualname__.split(".")[0]

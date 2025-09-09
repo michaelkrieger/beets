@@ -154,7 +154,11 @@ def _safe_call(
     try:
         return func(*arg, **kwargs)
     except Exception as e:
-        log.error(f"Error in metadata source plugin {func.__name__}: {e}")
+        log.error(
+            "Error in '{}': {}",
+            __class_name_from_method(func),
+            e,
+        )
         log.debug("Exception details:", exc_info=True)
 
     return None
@@ -167,8 +171,21 @@ def _safe_yield_from(
     try:
         yield from func(*arg, **kwargs)
     except Exception as e:
-        log.error(f"Error in metadata source plugin {func.__name__}: {e}")
+        log.error(
+            "Error in '{}': {}",
+            __class_name_from_method(func),
+            e,
+        )
         log.debug("Exception details:", exc_info=True)
+
+
+def __class_name_from_method(func: Callable) -> str:
+    """Helper function to get the class name from a method."""
+    return (
+        func.__qualname__.split(".")[0]
+        if "." in func.__qualname__
+        else "Unknown"
+    )
 
 
 def _get_distance(

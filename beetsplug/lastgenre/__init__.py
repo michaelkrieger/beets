@@ -266,7 +266,7 @@ class LastGenrePlugin(plugins.BeetsPlugin):
         depth_tag_pairs.sort(reverse=True)
         return [p[1] for p in depth_tag_pairs]
 
-    def _resolve_genres(self, tags: list[str]) -> list[str]:
+    def _resolve_genres(self, tags: list[str], artist: str = None) -> list[str]:
         """Canonicalize, sort and filter a list of genres.
 
         - Returns an empty list if the input tags list is empty.
@@ -322,7 +322,11 @@ class LastGenrePlugin(plugins.BeetsPlugin):
 
         # c14n only adds allowed genres but we may have had forbidden genres in
         # the original tags list
-        valid_tags = [t for t in tags if self._is_valid(t)]
+        valid_tags = [
+            t
+            for t in tags
+            if self._is_valid(t) and not self._is_forbidden(t, artist=artist)
+        ]
         return valid_tags[:count]
 
     def fetch_genre(self, lastfm_obj):
@@ -453,13 +457,13 @@ class LastGenrePlugin(plugins.BeetsPlugin):
         return [g for g in item_genre if g]
 
     def _combine_resolve_and_log(
-        self, old: list[str], new: list[str]
+        self, old: list[str], new: list[str], artist: str = None
     ) -> list[str]:
         """Combine old and new genres and process via _resolve_genres."""
         self._log.debug("raw last.fm tags: {}", new)
         self._log.debug("existing genres taken into account: {}", old)
         combined = old + new
-        return self._resolve_genres(combined)
+        return self._resolve_genres(combined, artist=artist)
 
     def _get_genre(
         self, obj: Union[Album, Item]
@@ -485,8 +489,9 @@ class LastGenrePlugin(plugins.BeetsPlugin):
 
         def _try_resolve_stage(stage_label: str, keep_genres, new_genres):
             """Try to resolve genres for a given stage and log the result."""
+            artist = getattr(obj, 'albumartist', None) or getattr(obj, 'artist', None)
             resolved_genres = self._combine_resolve_and_log(
-                keep_genres, new_genres
+                keep_genres, new_genres, artist=artist
             )
             if resolved_genres:
                 suffix = "whitelist" if self.whitelist else "any"

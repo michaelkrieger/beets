@@ -48,7 +48,7 @@ DEFAULT_ARTIST_SEPARATORS = [
     "featuring",
     "&",
     "vs.",
-    "x",  # Match "x" only as whole word
+    "x",
     "/",
     "+",
     "and",
@@ -467,16 +467,22 @@ class LastGenrePlugin(plugins.BeetsPlugin):
                             'No album artist genre found for "{0.albumartist}"',
                             obj,
                         )
-                    # Try splitting on separators for multi-artist albums
-                    albumartists = split_on_separators(
+
+                    # Try multi-valued field first, fallback to separator splitting
+                    albumartists = obj.get(
+                        "albumartists", []
+                    ) or split_on_separators(
                         obj.albumartist,
-                        separators=self.config["artist_separators"].as_str_seq()
+                        self.config["artist_separators"].as_str_seq(),
                     )
+
+                    split_method = (
+                        "albumartists"
+                        if obj.get("albumartists", [])
+                        else "albumartists sep-split"
+                    )
+
                     if len(albumartists) > 1:
-                        if self.config["extended_debug"]:
-                            self._log.debug(
-                                "Found separators in album artist - splitting..."
-                            )
                         for albumartist in albumartists:
                             if self.config["extended_debug"]:
                                 self._log.debug(
@@ -486,8 +492,8 @@ class LastGenrePlugin(plugins.BeetsPlugin):
                             new_genres += self.fetch_split_album_artist_genre(
                                 albumartist
                             )
-                            if new_genres:
-                                stage_label = "album artist (split)"
+                        if new_genres:
+                            stage_label = f"{split_method}"
             else:
                 # For "Various Artists", pick the most popular track genre.
                 item_genres = []

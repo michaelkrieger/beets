@@ -15,6 +15,10 @@ For packagers:
 
 Other changes:
 
+- Moved art.py utility module from ``beets`` into ``beetsplug`` namespace as it
+  is not used in the core beets codebase. It can now be found in
+  ``beetsplug._utils``.
+
 2.4.0 (September 13, 2025)
 --------------------------
 
